@@ -1,63 +1,59 @@
-puts "Bem vindo ao jogo de adivinhacao"
-puts "Digite seu nome: "
-nome = gets
-puts "\n\n\n\n"
-puts "O jogo ira iniciar agora "+ nome
-puts "Sera escolhido um numero secreto entre 0 e 200"
-numero_secreto = 121
-puts "O numero foi escolhido, voce tem 3 tentativas para acertar"
+def da_boas_vindas
+	puts "Bem vindo ao jogo de adivinhacao"
+	puts "Qual seu nome?"
+	nome = gets
+	puts "\n\n\n"
+	puts "Comecaremos o jogo agora, #{nome}"
+end
 
-puts "\n\n\n"
-puts "Tentativa 1"
-puts "Digite o numero secreto"
-chute = gets
-puts "Voce chutou: "+ chute
+def sorteia_numero_secreto
+	puts "Escolhendo um numero secreto entre 0 e 200..."
+	numero_secreto = 121
+	numero_secreto
+end
 
-acertou = numero_secreto == chute.to_i
-if acertou
-	puts "Acertou"
-else
-	maior = numero_secreto > chute.to_i
-	if maior
-		puts "O numero secreto e maior"
+def pede_um_numero(tentativa, limite_de_tentativas)
+	puts "\n\n\n"
+	puts "Tentativa #{tentativa} de #{limite_de_tentativas}"
+	puts "Digite seu palpite: "
+	chute = gets
+	puts "Voce chutou #{chute}"
+	chute.to_i
+end
+
+def verifica_se_acertou(numero_secreto, chute)
+	acertou = numero_secreto == chute
+	if acertou
+		puts "Acertou"
+		return true
 	else
-		puts "O numero secreto e menor"
+		maior = numero_secreto > chute
+		if maior
+			puts "O numero secreto e maior"
+		else
+			puts "O numero secreto e menor"
+		end
+		false
 	end
 end
 
-puts "\n\n\n"
-puts "Tentativa 2"
-puts "Digite o numero secreto"
-chute = gets
-puts "Voce chutou: "+ chute
-
-acertou = numero_secreto == chute.to_i
-if acertou
-	puts "Acertou"
-else
-	maior = numero_secreto > chute.to_i
-	if maior
-		puts "O numero secreto e maior"
-	else
-		puts "O numero secreto e menor"
+def joga(limite_de_tentativas)
+	numero_secreto = sorteia_numero_secreto
+	(1..limite_de_tentativas).each do |tentativa|
+		chute = pede_um_numero tentativa, limite_de_tentativas
+		break if verifica_se_acertou numero_secreto, chute
 	end
 end
 
-puts "\n\n\n"
-puts "Tentativa 3"
-puts "Digite o numero secreto"
-chute = gets
-puts "Voce chutou: "+ chute
-
-acertou = numero_secreto == chute.to_i
-if acertou
-	puts "Acertou"
-else
-	maior = numero_secreto > chute.to_i
-	if maior
-		puts "O numero secreto e maior"
-	else
-		puts "O numero secreto e menor"
-	end
+def nao_quer_jogar?
+	puts "Deseja jogar novamente? (S/N)"
+	quero_jogar = gets.strip.upcase
+	quero_jogar.casecmp("N").zero?
 end
 
+da_boas_vindas
+limite_de_tentativas = 3
+loop do
+	joga limite_de_tentativas
+	break if nao_quer_jogar?
+end
