@@ -1,88 +1,72 @@
-def da_boas_vindas
-		puts "Bem-vindo ao jogo de adivinhacao"
-		puts "Qual o seu nome?"
-		nome = gets
-		puts "\n\n\n\n"
-		puts "Comecaremos o jogo #{nome}"
-end
+require_relative "numero_chutado_exception.rb"
 
-def pede_dificuldade
-	puts "Qual o nivel de dificuldade que deseja? (1- facil, 5- dificil)"
-	dificuldade = gets.to_i
-end
+class Jogo
+  attr_reader :chutes,  :tentativas,  :tentativa
+  attr_reader :maximo,  :secreto
 
-def sorteia_numero_secreto (dificuldade)
-	case dificuldade
-	when 1
-		maximo = 30
-	when 2
-		maximo = 60
-	when 3
-		maximo = 100
-	when 4
-		maximo = 150
-	when 5
-		maximo = 200
-	end
+  def initialize(jogador, dificuldade, tentativas)
+    @jogador      = jogador
+    @dificuldade  = dificuldade
+    @tentativas   = tentativas
+    @chutes       = []
+    @tentativa    = 1
+    @acertou      = false
+    @secreto      = sorteia_numero
+  end
 
-	puts "Escolhendo um numero secreto entre 0 e #{maximo}"
-	numero_secreto = rand(maximo) + 1
-	puts "Adivinha o numero secreto a seguir"
+  def da_boas_vindas
+    puts 'Bem-vindo ao jogo da adivinhacao'
+    puts "\n\n\n\n"
+    puts "Comecaremos o jogo para voce, #{@jogador.nome}"
+  end
 
-	numero_secreto
-end
+  def chuta(chute)
+    mensagem = "Atencao, voce ja jogou o numero #{chute}!"
+    raise NumeroChutadoException, mensagem if @chutes.include? chute
 
-def pede_um_numero (chutes, tentativa, limite_de_tentativas)
-	puts "\n\n\n"
-	puts "Tentativa #{tentativa} de #{limite_de_tentativas}"
-	puts "Chutes ate agora#{chutes}"
-	puts "Entre com o numero"
-	chute = gets.strip.to_i
-	loop do
-		break unless chutes.include? chute
-		puts "Atencao, voce ja jogou o numero #{chute}!"
-		chute = gets.strip.to_i
-	end
-	puts "Voce chutou #{chute}"
-	chute
-end
+    @acertou = @secreto == chute
+    @chutes << chute
+    @tentativa += 1
+  end
 
-def verifica_se_acertou(numero_secreto, chute)
-	acertou = numero_secreto == chute
-	if acertou
-		puts "Acertou"
-		return true
-	else
-		maior = numero_secreto > chute
-		if maior
-			puts "O numero secreto e maior"
-		else
-			puts "O numero secreto e menor"
-		end
-		false
-	end
-end
+  def chute_certo?
+    @acertou
+  end
 
-def joga(limite_de_tentativas, dificuldade)
-	chutes = []
-	numero_secreto = sorteia_numero_secreto dificuldade
-	(1..limite_de_tentativas).each do |tentativa|
-		chute = pede_um_numero chutes, tentativa, limite_de_tentativas
-		chutes << chute
-		break if verifica_se_acertou numero_secreto, chute
-	end
-end
+  def detalhe_do_chute
+    if self.chute_certo?
+      'Voce acertou o numero secreto'
+    else
+      chute = @chutes.last
+      maior = @secreto > chute
+      if maior
+        "O numero secreto e maior do que #{@chute}!"
+      else
+        "O numero secreto e menor do que #{chute}!"
+      end
+    end
+  end
 
-def nao_quer_jogar?
-	puts "Deseja jogar novamento? (S/N)"
-	quero_jogar = gets.strip.upcase
-	quero_jogar.casecmp("N").zero?
-end
+  def esgotou_tentativas?
+    @tentativa > @tentativas
+  end
 
-da_boas_vindas
-limite_de_tentativas = 3
-dificuldade = pede_dificuldade
-loop do
-	joga limite_de_tentativas, dificuldade
-	break if nao_quer_jogar?
+private
+  def sorteia_numero
+    case @dificuldade
+    when 1
+      maximo = 30
+    when 2
+      maximo = 60
+    when 3
+      maximo = 100
+    when 4
+      maximo = 150
+    else
+      maximo = 200
+    end
+    @maximo = maximo
+
+    rand(@maximo) + 1
+  end
 end
